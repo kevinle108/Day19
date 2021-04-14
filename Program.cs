@@ -8,69 +8,51 @@ namespace Day19
     {
         static void Main(string[] args)
         {
-            //string data = File.ReadAllText("nasa2.json");
-
-            //using var doc = JsonDocument.Parse(data);
-            //JsonElement root = doc.RootElement;
-
-            //Console.WriteLine("The root is of type " + root.ValueKind);
-
-            //EnumerateDoc("nasa2.json");
-            EnumerateDoc("countries.json");
-
+            EnumerateDoc("nasa1.json");
         }
 
         static void EnumerateDoc(string fileName)
         {
-            string data = File.ReadAllText(fileName);
-            JsonDocument doc = JsonDocument.Parse(data);
-            EnumerateElement(doc.RootElement, "");
+            string data = File.ReadAllText("countries.json");
+            using JsonDocument doc = JsonDocument.Parse(data);
+            JsonElement root = doc.RootElement;
+            Console.WriteLine($"Root is an {root.ValueKind}");
+            EnumerateEle(root);
+            
         }
 
-        static void EnumerateElement(JsonElement elem, string indentation)
+        static void EnumerateEle(JsonElement ele)
         {
-            switch (elem.ValueKind)
+            switch (ele.ValueKind)
             {
-                case JsonValueKind.Array:
-                    for (int i = 0; i < elem.GetArrayLength(); i++)
-                    {
-                        Console.WriteLine(indentation + "Item " + (i + 1) + " of " + elem.GetArrayLength());
-                        EnumerateElement(elem[i], indentation + "    ");
-                        Console.WriteLine();
-                    }
-                    break;
-
                 case JsonValueKind.Object:
-                    var objEnum = elem.EnumerateObject();
+                    Console.WriteLine("Enumerating object...");
+                    var objEnum = ele.EnumerateObject();                    
                     while (objEnum.MoveNext())
                     {
-                        JsonProperty prop = objEnum.Current;
-                        string name = prop.Name;
-                        JsonElement value = prop.Value;
-                        switch (value.ValueKind)
-                        {
-                            case JsonValueKind.Array:
-                                Console.WriteLine(indentation + name + " is an array of length " + value.GetArrayLength());
-                                EnumerateElement(value, indentation + "    ");
-                                break;
-
-                            case JsonValueKind.Object:
-                                Console.WriteLine(indentation + name + " is an object");
-                                EnumerateElement(value, indentation + "    ");
-                                break;
-
-                            default:
-                                Console.WriteLine(indentation + name + ": " + value);
-                                break;
-                        }
+                        string propName = objEnum.Current.Name;
+                        JsonElement propValue = objEnum.Current.Value;
+                        JsonValueKind propValueType = objEnum.Current.Value.ValueKind;
+                        Console.WriteLine($"{propName} is an {propValueType}");                        
+                        //Console.WriteLine($"  Value: {propValue}");
+                        EnumerateEle(propValue);
                     }
                     break;
-
+                case JsonValueKind.Array:
+                    Console.WriteLine("Enumerating array...");
+                    for (int i = 0; i < ele.GetArrayLength(); i++)
+                    {
+                        Console.WriteLine($"Displaying {i+1} of {ele.GetArrayLength()}");
+                        EnumerateEle(ele[i]);
+                        Console.WriteLine("***********");
+                    }
+                    break;
                 default:
-                    Console.WriteLine(indentation + elem);
+                    Console.WriteLine("Here is the value: " + ele);
+                    Console.WriteLine();
                     break;
             }
         }
-
+        
     }
 }
