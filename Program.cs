@@ -8,11 +8,9 @@ namespace Day19
     {
         static void Main(string[] args)
         {
-
+            //EnumerateDoc("nasa1.json");
             //EnumerateDoc("nasa2.json");
             EnumerateDoc("countries.json");
-
-
         }        
         static void EnumerateDoc(string fileName)
         {
@@ -26,23 +24,30 @@ namespace Day19
             {
                 
                 case JsonValueKind.Object:
-                    Console.WriteLine(indentation + "This is an Object");
                     JsonElement.ObjectEnumerator objEnum = ele.EnumerateObject();
                     while (objEnum.MoveNext())
                     {
                         JsonProperty prop = objEnum.Current;
                         string propName = prop.Name;
                         JsonElement propValue = prop.Value;
-                        Console.WriteLine(indentation + " " + $"{propName} is an {propValue.ValueKind}");
-                        EnumerateEle(propValue, indentation + "  ");
+                        switch (propValue.ValueKind)    
+                        {
+                            case JsonValueKind.Object:
+                                EnumerateEle(propValue, indentation + "  ");
+                                break;
+                            case JsonValueKind.Array:
+                                Console.WriteLine(indentation + $"{propName} is an array of length {propValue.GetArrayLength()}");
+                                EnumerateEle(propValue, indentation + "      ");
+                                break;
+                            default:
+                                Console.WriteLine(indentation + $"{propName}: {propValue}");
+                                break;
+                        }
                     }
                     break;
                 case JsonValueKind.Array:
-                    Console.WriteLine(indentation + $"This is an Array of {ele.GetArrayLength()} items:");
-
                     JsonElement.ArrayEnumerator arrEnum = ele.EnumerateArray();
-                    int i = 1;
-                    
+                    int i = 1;                    
                     while (arrEnum.MoveNext())
                     {                        
                         Console.WriteLine(indentation + $"Item {i} of {ele.GetArrayLength()}");
@@ -52,7 +57,6 @@ namespace Day19
                     }
                     break;               
                 default:
-                    Console.WriteLine(indentation + "This is a Primitive");
                     Console.WriteLine(indentation + ele);
                     break;
             }
