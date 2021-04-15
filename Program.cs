@@ -21,8 +21,7 @@ namespace Day19
         static void EnumerateEle(JsonElement ele, string indentation)
         {
             switch (ele.ValueKind)
-            {
-                
+            {                
                 case JsonValueKind.Object:
                     JsonElement.ObjectEnumerator objEnum = ele.EnumerateObject();
                     while (objEnum.MoveNext())
